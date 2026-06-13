@@ -8,45 +8,85 @@
 <style>
 body {
   margin: 0;
-  text-align: center;
-  background: #222;
+  background: #111;
   color: white;
+  text-align: center;
+  font-family: Arial;
 }
 
+h2 { margin-top: 10px; }
+
+/* DART TAHTASI */
 #board {
   position: relative;
-  width: 300px;
-  height: 300px;
+  width: 320px;
+  height: 320px;
   margin: 20px auto;
-  background: url("dartboard.jpg");
-  background-size: cover;
   border-radius: 50%;
+  background: radial-gradient(circle,
+    #fff 0%,
+    #fff 5%,
+    red 5%,
+    red 10%,
+    white 10%,
+    white 15%,
+    black 15%,
+    black 25%,
+    white 25%,
+    white 35%,
+    red 35%,
+    red 50%,
+    #222 50%,
+    #222 100%);
+  box-shadow: 0 0 20px black;
 }
 
+/* ORTADAKİ FOTO */
 #centerImg {
   position: absolute;
-  width: 80px;
-  height: 80px;
-  top: 110px;
-  left: 110px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 3px solid white;
+  object-fit: cover;
 }
 
+/* GÜZEL OK */
 .arrow {
   position: absolute;
-  width: 30px;
-  height: 10px;
-  background: yellow;
+  width: 40px;
+  height: 6px;
+  background: linear-gradient(to right, gold, orange);
+  border-radius: 5px;
+  transform: rotate(0deg);
+}
+
+.arrow::after {
+  content: "";
+  position: absolute;
+  right: -10px;
+  top: -4px;
+  border-left: 10px solid orange;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+}
+
+#score {
+  font-size: 22px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Dart Oyunu</h2>
+<h2>Dart Oyunu 🎯</h2>
 <p>Puan: <span id="score">0</span></p>
 
 <div id="board">
+  <!-- kendi resmini buraya koy -->
   <img src="ben.jpg" id="centerImg">
 </div>
 
@@ -55,39 +95,49 @@ let score = 0;
 const board = document.getElementById("board");
 const scoreText = document.getElementById("score");
 
-// hem mouse hem telefon için
 function shoot(x, y) {
+
+  // OK oluştur
   const arrow = document.createElement("div");
   arrow.className = "arrow";
+
   arrow.style.left = x + "px";
   arrow.style.top = y + "px";
+
+  // hafif animasyon
+  arrow.style.transform = "scale(0.5)";
+  setTimeout(() => {
+    arrow.style.transform = "scale(1)";
+  }, 50);
+
   board.appendChild(arrow);
 
-  // merkez hesap (basit)
-  const centerX = 150;
-  const centerY = 150;
+  // merkez hesap
+  const cx = 160;
+  const cy = 160;
 
-  const dx = x - centerX;
-  const dy = y - centerY;
-  const distance = Math.sqrt(dx*dx + dy*dy);
+  const dx = x - cx;
+  const dy = y - cy;
+  const dist = Math.sqrt(dx*dx + dy*dy);
 
-  if (distance < 50) score += 50;
-  else if (distance < 100) score += 20;
+  if (dist < 30) score += 50;
+  else if (dist < 80) score += 20;
+  else if (dist < 130) score += 10;
   else score += 5;
 
   scoreText.textContent = score;
 }
 
-// click + touch support
-board.addEventListener("click", function(e) {
-  const rect = board.getBoundingClientRect();
-  shoot(e.clientX - rect.left, e.clientY - rect.top);
+// PC + TELEFON
+board.addEventListener("click", e => {
+  const r = board.getBoundingClientRect();
+  shoot(e.clientX - r.left, e.clientY - r.top);
 });
 
-board.addEventListener("touchstart", function(e) {
-  const rect = board.getBoundingClientRect();
-  const touch = e.touches[0];
-  shoot(touch.clientX - rect.left, touch.clientY - rect.top);
+board.addEventListener("touchstart", e => {
+  const r = board.getBoundingClientRect();
+  const t = e.touches[0];
+  shoot(t.clientX - r.left, t.clientY - r.top);
 });
 </script>
 
