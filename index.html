@@ -7,14 +7,23 @@
 <title>Dart Oyunu</title>
 
 <style>
+
 body{
     margin:0;
     background:#222;
     display:flex;
+    flex-direction:column;
     justify-content:center;
     align-items:center;
     height:100vh;
     overflow:hidden;
+}
+
+#puan{
+    color:white;
+    font-size:32px;
+    font-weight:bold;
+    margin-bottom:15px;
 }
 
 #oyun{
@@ -27,25 +36,22 @@ body{
     width:500px;
     height:500px;
     border-radius:50%;
-    border:8px solid black;
     background:
     radial-gradient(circle,
     red 0%,
-    red 12%,
-    white 12%,
-    white 24%,
-    black 24%,
-    black 36%,
-    white 36%,
-    white 48%,
-    black 48%,
-    black 60%,
-    white 60%,
-    white 72%,
-    black 72%,
-    black 84%,
-    white 84%,
-    white 100%);
+    red 10%,
+    white 10%,
+    white 20%,
+    black 20%,
+    black 35%,
+    white 35%,
+    white 50%,
+    black 50%,
+    black 65%,
+    white 65%,
+    white 80%,
+    black 80%,
+    black 100%);
 }
 
 #foto{
@@ -59,29 +65,27 @@ body{
     border:4px solid gold;
 }
 
-#ok{
+#yay{
     position:absolute;
-    width:70px;
-    left:215px;
-    top:430px;
-    cursor:pointer;
-    transition:all 0.8s ease;
+    width:90px;
+    bottom:-10px;
+    left:205px;
+    z-index:10;
+    pointer-events:none;
 }
+
+.ok{
+    position:absolute;
+    width:55px;
+    pointer-events:none;
+}
+
 </style>
 </head>
 
 <body>
 
-<div id="puan"
-style="
-position:absolute;
-top:20px;
-left:20px;
-color:white;
-font-size:30px;
-font-weight:bold;">
-Puan: 0
-</div>
+<div id="puan">Puan: 0</div>
 
 <div id="oyun">
 
@@ -89,29 +93,68 @@ Puan: 0
 
 <img id="foto" src="ben.jpg">
 
-</div>
+<img id="yay"
+src="https://cdn-icons-png.flaticon.com/512/149/149604.png">
 
-</body>
+</div>
 
 <script>
 
 const oyun = document.getElementById("oyun");
-const ok = document.getElementById("ok");
+const puanYazi = document.getElementById("puan");
+
+let puan = 0;
 
 oyun.addEventListener("click", function(e){
 
 const rect = oyun.getBoundingClientRect();
 
-let x = e.clientX - rect.left - 35;
-let y = e.clientY - rect.top - 35;
+const hedefX = e.clientX - rect.left;
+const hedefY = e.clientY - rect.top;
 
-ok.style.left = x + "px";
-ok.style.top = y + "px";
+const ok = document.createElement("img");
+
+ok.src =
+"https://cdn-icons-png.flaticon.com/512/32/32195.png";
+
+ok.className = "ok";
+
+ok.style.left = "222px";
+ok.style.top = "440px";
+
+oyun.appendChild(ok);
 
 setTimeout(()=>{
-    ok.style.left="215px";
-    ok.style.top="430px";
-},1000);
+
+ok.style.transition = "all 0.5s linear";
+
+ok.style.left = (hedefX-25)+"px";
+ok.style.top = (hedefY-25)+"px";
+
+},20);
+
+const merkezX = 250;
+const merkezY = 250;
+
+const uzaklik = Math.sqrt(
+Math.pow(hedefX-merkezX,2)+
+Math.pow(hedefY-merkezY,2)
+);
+
+if(uzaklik < 60){
+    puan += 100;
+}
+else if(uzaklik < 120){
+    puan += 50;
+}
+else if(uzaklik < 180){
+    puan += 20;
+}
+else{
+    puan += 10;
+}
+
+puanYazi.innerText = "Puan: " + puan;
 
 });
 
