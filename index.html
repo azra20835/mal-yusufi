@@ -44,47 +44,18 @@ body{
   border:3px solid white;
 }
 
-/* OK TASARIMI (GERÇEK OK GİBİ) */
+/* OK */
 .arrow{
   position:absolute;
-  display:flex;
-  align-items:center;
+  width:80px;
+  height:10px;
   transform-origin:left center;
+  pointer-events:none;
 }
 
-/* gövde */
-.stick{
-  width:40px;
-  height:4px;
-  background:#caa472;
-  border-radius:2px;
-}
-
-/* metal uç */
-.tip{
-  width:0;
-  height:0;
-  border-left:12px solid silver;
-  border-top:6px solid transparent;
-  border-bottom:6px solid transparent;
-}
-
-/* tüy */
-.feather{
-  width:0;
-  height:0;
-  border-right:12px solid #ff3b3b;
-  border-top:6px solid transparent;
-  border-bottom:6px solid transparent;
-  margin-left:2px;
-}
-
+/* saplanma */
 .stuck{
   filter: drop-shadow(0 0 4px black);
-}
-
-#score{
-  font-size:22px;
 }
 </style>
 </head>
@@ -103,16 +74,31 @@ let score = 0;
 const board = document.getElementById("board");
 const scoreText = document.getElementById("score");
 
+function makeArrow(){
+  const div = document.createElement("div");
+  div.className = "arrow";
+
+  // GERÇEĞE EN YAKIN OK (SVG)
+  div.innerHTML = `
+  <svg viewBox="0 0 120 20" width="80" height="10">
+    <!-- gövde (ahşap) -->
+    <rect x="10" y="8" width="70" height="4" fill="#8B5A2B"/>
+
+    <!-- ok ucu (metal) -->
+    <polygon points="80,10 105,2 105,18" fill="#C0C0C0"/>
+
+    <!-- tüy -->
+    <polygon points="10,10 0,0 0,20" fill="#ff4444"/>
+    <polygon points="10,10 2,2 2,18" fill="#ff7777"/>
+  </svg>
+  `;
+
+  return div;
+}
+
 function shoot(x,y){
 
-  const arrow = document.createElement("div");
-  arrow.className = "arrow";
-
-  arrow.innerHTML = `
-    <div class="feather"></div>
-    <div class="stick"></div>
-    <div class="tip"></div>
-  `;
+  const arrow = makeArrow();
 
   const startX = 180;
   const startY = 180;
@@ -126,6 +112,7 @@ function shoot(x,y){
   const dy = y - startY;
 
   const angle = Math.atan2(dy,dx) * 180/Math.PI;
+
   let rot = angle;
 
   let t = 0;
@@ -134,14 +121,12 @@ function shoot(x,y){
   const anim = setInterval(()=>{
 
     t++;
-
     const p = t/steps;
 
     const nx = startX + dx*p;
     const ny = startY + dy*p - Math.sin(p*Math.PI)*50;
 
-    // dönerek uçsun
-    rot += 8;
+    rot += 4;
 
     arrow.style.left = nx + "px";
     arrow.style.top = ny + "px";
@@ -152,14 +137,8 @@ function shoot(x,y){
 
       arrow.classList.add("stuck");
 
-      // hafif titreşim
-      let shake = 0;
-      const vib = setInterval(()=>{
-        shake++;
-        arrow.style.left = (nx + (Math.random()-0.5)*2) + "px";
-        arrow.style.top = (ny + (Math.random()-0.5)*2) + "px";
-        if(shake>10) clearInterval(vib);
-      },30);
+      // SAPLAN
+      arrow.style.transform = `rotate(${angle}deg)`;
 
       const dist = Math.sqrt(dx*dx + dy*dy);
 
