@@ -14,28 +14,24 @@ body {
   text-align: center;
 }
 
-h2 { margin-top: 10px; }
-
-/* DART TAHTASI */
 #board {
   position: relative;
-  width: 340px;
-  height: 340px;
+  width: 360px;
+  height: 360px;
   margin: 20px auto;
   border-radius: 50%;
   background: radial-gradient(circle,
-    #ffffff 0%, #ffffff 5%,
+    #fff 0%, #fff 5%,
     #e53935 5%, #e53935 10%,
-    #ffffff 10%, #ffffff 15%,
-    #000000 15%, #000000 25%,
-    #ffffff 25%, #ffffff 35%,
+    #fff 10%, #fff 15%,
+    #000 15%, #000 25%,
+    #fff 25%, #fff 35%,
     #e53935 35%, #e53935 50%,
     #222 50%, #222 100%);
   overflow: hidden;
-  box-shadow: 0 0 20px black;
+  box-shadow: 0 0 25px black;
 }
 
-/* ORTA FOTO */
 #centerImg {
   position: absolute;
   width: 90px;
@@ -48,30 +44,24 @@ h2 { margin-top: 10px; }
   border: 3px solid white;
 }
 
-/* OK TASARIMI */
+/* OK */
 .arrow {
   position: absolute;
-  width: 55px;
+  width: 60px;
   height: 6px;
   background: linear-gradient(to right, #d4af37, #ffcc00);
   border-radius: 4px;
   transform-origin: left center;
 }
 
-/* OK UCU */
 .arrow::after {
   content: "";
   position: absolute;
-  right: -12px;
-  top: -5px;
-  border-left: 12px solid #ff9900;
+  right: -14px;
+  top: -6px;
+  border-left: 14px solid #ff9900;
   border-top: 8px solid transparent;
   border-bottom: 8px solid transparent;
-}
-
-/* SAPLANMA EFEKTİ */
-.stuck {
-  filter: drop-shadow(0 0 4px black);
 }
 
 #score {
@@ -99,37 +89,43 @@ function shoot(x, y) {
   const arrow = document.createElement("div");
   arrow.className = "arrow";
 
-  const startX = 170;
-  const startY = 170;
+  const startX = 180;
+  const startY = 180;
 
   arrow.style.left = startX + "px";
   arrow.style.top = startY + "px";
 
   board.appendChild(arrow);
 
-  // açı hesapla
   const dx = x - startX;
   const dy = y - startY;
-  const angle = Math.atan2(dy, dx) * 180 / Math.PI;
 
+  const angle = Math.atan2(dy, dx) * 180 / Math.PI;
   arrow.style.transform = `rotate(${angle}deg)`;
 
   let t = 0;
-  const steps = 18;
+  const steps = 60; // daha uzun = daha yumuşak
 
   const anim = setInterval(() => {
     t++;
 
-    const nx = startX + dx * (t / steps);
-    const ny = startY + dy * (t / steps);
+    // 🎯 KAVİS (parabol hissi)
+    const progress = t / steps;
+
+    const nx = startX + dx * progress;
+    const ny = startY + dy * progress - (Math.sin(progress * Math.PI) * 60);
 
     arrow.style.left = nx + "px";
     arrow.style.top = ny + "px";
 
+    // hız düşsün (gerçekçilik)
+    arrow.style.opacity = 1;
+
     if (t >= steps) {
       clearInterval(anim);
 
-      arrow.classList.add("stuck");
+      // saplanma hissi
+      arrow.style.filter = "drop-shadow(0 0 5px black)";
 
       const dist = Math.sqrt(dx*dx + dy*dy);
 
@@ -140,6 +136,7 @@ function shoot(x, y) {
 
       scoreText.textContent = score;
     }
+
   }, 12);
 }
 
