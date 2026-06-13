@@ -44,18 +44,17 @@ body{
   border:3px solid white;
 }
 
-/* OK */
+/* GERÇEK OK GÖRSELİ */
 .arrow{
   position:absolute;
-  width:80px;
-  height:10px;
+  width:70px;
+  height:20px;
   transform-origin:left center;
   pointer-events:none;
 }
 
-/* saplanma */
-.stuck{
-  filter: drop-shadow(0 0 4px black);
+#score{
+  font-size:22px;
 }
 </style>
 </head>
@@ -74,24 +73,20 @@ let score = 0;
 const board = document.getElementById("board");
 const scoreText = document.getElementById("score");
 
+// 🔥 GERÇEK OK GÖRSELİ (internet üzerinden)
+const ARROW_IMG = "https://upload.wikimedia.org/wikipedia/commons/6/6f/Arrow_icon.svg";
+
 function makeArrow(){
   const div = document.createElement("div");
   div.className = "arrow";
 
-  // GERÇEĞE EN YAKIN OK (SVG)
-  div.innerHTML = `
-  <svg viewBox="0 0 120 20" width="80" height="10">
-    <!-- gövde (ahşap) -->
-    <rect x="10" y="8" width="70" height="4" fill="#8B5A2B"/>
+  const img = document.createElement("img");
+  img.src = ARROW_IMG;
 
-    <!-- ok ucu (metal) -->
-    <polygon points="80,10 105,2 105,18" fill="#C0C0C0"/>
+  img.style.width = "70px";
+  img.style.height = "20px";
 
-    <!-- tüy -->
-    <polygon points="10,10 0,0 0,20" fill="#ff4444"/>
-    <polygon points="10,10 2,2 2,18" fill="#ff7777"/>
-  </svg>
-  `;
+  div.appendChild(img);
 
   return div;
 }
@@ -113,10 +108,8 @@ function shoot(x,y){
 
   const angle = Math.atan2(dy,dx) * 180/Math.PI;
 
-  let rot = angle;
-
   let t = 0;
-  const steps = 55;
+  const steps = 50;
 
   const anim = setInterval(()=>{
 
@@ -124,22 +117,17 @@ function shoot(x,y){
     const p = t/steps;
 
     const nx = startX + dx*p;
-    const ny = startY + dy*p - Math.sin(p*Math.PI)*50;
-
-    rot += 4;
+    const ny = startY + dy*p - Math.sin(p*Math.PI)*60;
 
     arrow.style.left = nx + "px";
     arrow.style.top = ny + "px";
-    arrow.style.transform = `rotate(${rot}deg)`;
+
+    arrow.style.transform = `rotate(${angle}deg)`;
 
     if(t>=steps){
       clearInterval(anim);
 
-      arrow.classList.add("stuck");
-
-      // SAPLAN
-      arrow.style.transform = `rotate(${angle}deg)`;
-
+      // saplanma
       const dist = Math.sqrt(dx*dx + dy*dy);
 
       if(dist<30) score+=50;
