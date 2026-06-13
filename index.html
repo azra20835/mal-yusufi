@@ -6,20 +6,20 @@
 <title>Dart Oyunu</title>
 
 <style>
-body {
-  margin: 0;
-  background: #111;
-  color: white;
-  font-family: Arial;
-  text-align: center;
+body{
+  margin:0;
+  background:#111;
+  color:white;
+  font-family:Arial;
+  text-align:center;
 }
 
-#board {
-  position: relative;
-  width: 360px;
-  height: 360px;
-  margin: 20px auto;
-  border-radius: 50%;
+#board{
+  position:relative;
+  width:360px;
+  height:360px;
+  margin:20px auto;
+  border-radius:50%;
   background: radial-gradient(circle,
     #fff 0%, #fff 5%,
     #e53935 5%, #e53935 10%,
@@ -28,44 +28,63 @@ body {
     #fff 25%, #fff 35%,
     #e53935 35%, #e53935 50%,
     #222 50%, #222 100%);
-  overflow: hidden;
-  box-shadow: 0 0 25px black;
+  overflow:hidden;
+  box-shadow:0 0 25px black;
 }
 
-#centerImg {
-  position: absolute;
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  object-fit: cover;
-  border: 3px solid white;
+#centerImg{
+  position:absolute;
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  object-fit:cover;
+  border:3px solid white;
 }
 
-/* OK */
-.arrow {
-  position: absolute;
-  width: 60px;
-  height: 6px;
-  background: linear-gradient(to right, #d4af37, #ffcc00);
-  border-radius: 4px;
-  transform-origin: left center;
+/* OK TASARIMI (GERÇEK OK GİBİ) */
+.arrow{
+  position:absolute;
+  display:flex;
+  align-items:center;
+  transform-origin:left center;
 }
 
-.arrow::after {
-  content: "";
-  position: absolute;
-  right: -14px;
-  top: -6px;
-  border-left: 14px solid #ff9900;
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
+/* gövde */
+.stick{
+  width:40px;
+  height:4px;
+  background:#caa472;
+  border-radius:2px;
 }
 
-#score {
-  font-size: 22px;
+/* metal uç */
+.tip{
+  width:0;
+  height:0;
+  border-left:12px solid silver;
+  border-top:6px solid transparent;
+  border-bottom:6px solid transparent;
+}
+
+/* tüy */
+.feather{
+  width:0;
+  height:0;
+  border-right:12px solid #ff3b3b;
+  border-top:6px solid transparent;
+  border-bottom:6px solid transparent;
+  margin-left:2px;
+}
+
+.stuck{
+  filter: drop-shadow(0 0 4px black);
+}
+
+#score{
+  font-size:22px;
 }
 </style>
 </head>
@@ -84,10 +103,16 @@ let score = 0;
 const board = document.getElementById("board");
 const scoreText = document.getElementById("score");
 
-function shoot(x, y) {
+function shoot(x,y){
 
   const arrow = document.createElement("div");
   arrow.className = "arrow";
+
+  arrow.innerHTML = `
+    <div class="feather"></div>
+    <div class="stick"></div>
+    <div class="tip"></div>
+  `;
 
   const startX = 180;
   const startY = 180;
@@ -100,57 +125,64 @@ function shoot(x, y) {
   const dx = x - startX;
   const dy = y - startY;
 
-  const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-  arrow.style.transform = `rotate(${angle}deg)`;
+  const angle = Math.atan2(dy,dx) * 180/Math.PI;
+  let rot = angle;
 
   let t = 0;
-  const steps = 60; // daha uzun = daha yumuşak
+  const steps = 55;
 
-  const anim = setInterval(() => {
+  const anim = setInterval(()=>{
+
     t++;
 
-    // 🎯 KAVİS (parabol hissi)
-    const progress = t / steps;
+    const p = t/steps;
 
-    const nx = startX + dx * progress;
-    const ny = startY + dy * progress - (Math.sin(progress * Math.PI) * 60);
+    const nx = startX + dx*p;
+    const ny = startY + dy*p - Math.sin(p*Math.PI)*50;
+
+    // dönerek uçsun
+    rot += 8;
 
     arrow.style.left = nx + "px";
     arrow.style.top = ny + "px";
+    arrow.style.transform = `rotate(${rot}deg)`;
 
-    // hız düşsün (gerçekçilik)
-    arrow.style.opacity = 1;
-
-    if (t >= steps) {
+    if(t>=steps){
       clearInterval(anim);
 
-      // saplanma hissi
-      arrow.style.filter = "drop-shadow(0 0 5px black)";
+      arrow.classList.add("stuck");
+
+      // hafif titreşim
+      let shake = 0;
+      const vib = setInterval(()=>{
+        shake++;
+        arrow.style.left = (nx + (Math.random()-0.5)*2) + "px";
+        arrow.style.top = (ny + (Math.random()-0.5)*2) + "px";
+        if(shake>10) clearInterval(vib);
+      },30);
 
       const dist = Math.sqrt(dx*dx + dy*dy);
 
-      if (dist < 30) score += 50;
-      else if (dist < 80) score += 20;
-      else if (dist < 130) score += 10;
-      else score += 5;
+      if(dist<30) score+=50;
+      else if(dist<80) score+=20;
+      else if(dist<130) score+=10;
+      else score+=5;
 
       scoreText.textContent = score;
     }
 
-  }, 12);
+  },12);
 }
 
-/* PC */
-board.addEventListener("click", e => {
-  const r = board.getBoundingClientRect();
-  shoot(e.clientX - r.left, e.clientY - r.top);
+board.addEventListener("click",e=>{
+  const r=board.getBoundingClientRect();
+  shoot(e.clientX-r.left,e.clientY-r.top);
 });
 
-/* TELEFON */
-board.addEventListener("touchstart", e => {
-  const r = board.getBoundingClientRect();
-  const t = e.touches[0];
-  shoot(t.clientX - r.left, t.clientY - r.top);
+board.addEventListener("touchstart",e=>{
+  const r=board.getBoundingClientRect();
+  const t=e.touches[0];
+  shoot(t.clientX-r.left,t.clientY-r.top);
 });
 </script>
 
