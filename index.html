@@ -3,161 +3,92 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Dart Oyunu</title>
 
 <style>
-
-body{
-    margin:0;
-    background:#222;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    overflow:hidden;
+body {
+  margin: 0;
+  text-align: center;
+  background: #222;
+  color: white;
 }
 
-#puan{
-    color:white;
-    font-size:32px;
-    font-weight:bold;
-    margin-bottom:15px;
+#board {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin: 20px auto;
+  background: url("dartboard.jpg");
+  background-size: cover;
+  border-radius: 50%;
 }
 
-#oyun{
-    position:relative;
-    width:500px;
-    height:500px;
+#centerImg {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  top: 110px;
+  left: 110px;
+  border-radius: 50%;
 }
 
-#tahta{
-    width:500px;
-    height:500px;
-    border-radius:50%;
-    background:
-    radial-gradient(circle,
-    red 0%,
-    red 10%,
-    white 10%,
-    white 20%,
-    black 20%,
-    black 35%,
-    white 35%,
-    white 50%,
-    black 50%,
-    black 65%,
-    white 65%,
-    white 80%,
-    black 80%,
-    black 100%);
+.arrow {
+  position: absolute;
+  width: 30px;
+  height: 10px;
+  background: yellow;
 }
-
-#foto{
-    position:absolute;
-    width:120px;
-    height:120px;
-    border-radius:50%;
-    top:190px;
-    left:190px;
-    object-fit:cover;
-    border:4px solid gold;
-}
-
-#yay{
-    position:absolute;
-    width:90px;
-    bottom:-10px;
-    left:205px;
-    z-index:10;
-    pointer-events:none;
-}
-
-.ok{
-    position:absolute;
-    width:55px;
-    pointer-events:none;
-}
-
 </style>
 </head>
 
 <body>
 
-<div id="puan">Puan: 0</div>
+<h2>Dart Oyunu</h2>
+<p>Puan: <span id="score">0</span></p>
 
-<div id="oyun">
-
-<div id="tahta"></div>
-
-<img id="foto" src="ben.jpg">
-
-<img id="yay"
-src="https://cdn-icons-png.flaticon.com/512/149/149604.png">
-
+<div id="board">
+  <img src="ben.jpg" id="centerImg">
 </div>
 
 <script>
+let score = 0;
+const board = document.getElementById("board");
+const scoreText = document.getElementById("score");
 
-const oyun = document.getElementById("oyun");
-const puanYazi = document.getElementById("puan");
+// hem mouse hem telefon için
+function shoot(x, y) {
+  const arrow = document.createElement("div");
+  arrow.className = "arrow";
+  arrow.style.left = x + "px";
+  arrow.style.top = y + "px";
+  board.appendChild(arrow);
 
-let puan = 0;
+  // merkez hesap (basit)
+  const centerX = 150;
+  const centerY = 150;
 
-oyun.addEventListener("click", function(e){
+  const dx = x - centerX;
+  const dy = y - centerY;
+  const distance = Math.sqrt(dx*dx + dy*dy);
 
-const rect = oyun.getBoundingClientRect();
+  if (distance < 50) score += 50;
+  else if (distance < 100) score += 20;
+  else score += 5;
 
-const hedefX = e.clientX - rect.left;
-const hedefY = e.clientY - rect.top;
-
-const ok = document.createElement("img");
-
-ok.src =
-"https://cdn-icons-png.flaticon.com/512/32/32195.png";
-
-ok.className = "ok";
-
-ok.style.left = "222px";
-ok.style.top = "440px";
-
-oyun.appendChild(ok);
-
-setTimeout(()=>{
-
-ok.style.transition = "all 0.5s linear";
-
-ok.style.left = (hedefX-25)+"px";
-ok.style.top = (hedefY-25)+"px";
-
-},20);
-
-const merkezX = 250;
-const merkezY = 250;
-
-const uzaklik = Math.sqrt(
-Math.pow(hedefX-merkezX,2)+
-Math.pow(hedefY-merkezY,2)
-);
-
-if(uzaklik < 60){
-    puan += 100;
-}
-else if(uzaklik < 120){
-    puan += 50;
-}
-else if(uzaklik < 180){
-    puan += 20;
-}
-else{
-    puan += 10;
+  scoreText.textContent = score;
 }
 
-puanYazi.innerText = "Puan: " + puan;
-
+// click + touch support
+board.addEventListener("click", function(e) {
+  const rect = board.getBoundingClientRect();
+  shoot(e.clientX - rect.left, e.clientY - rect.top);
 });
 
+board.addEventListener("touchstart", function(e) {
+  const rect = board.getBoundingClientRect();
+  const touch = e.touches[0];
+  shoot(touch.clientX - rect.left, touch.clientY - rect.top);
+});
 </script>
 
 </body>
